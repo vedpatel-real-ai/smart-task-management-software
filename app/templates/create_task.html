@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Task</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 1000px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        .templates-sidebar {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 30px;
+            color: white;
+        }
+
+        .templates-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .template-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .template-item:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .template-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .template-desc {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-header h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .form-header p {
+            color: #666;
+            margin: 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #667eea;
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .priority-options {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .priority-option {
+            position: relative;
+        }
+
+        .priority-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .priority-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 15px 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .priority-option input[type="radio"]:checked + label {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .priority-icon {
+            font-size: 1.5em;
+        }
+
+        .datetime-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .submit-container {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash-message {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .flash-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .flash-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .character-count {
+            font-size: 0.8em;
+            color: #666;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                margin: 10px;
+            }
+            
+            .templates-sidebar {
+                order: 2;
+            }
+            
+            .form-container {
+                order: 1;
+                padding: 20px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .priority-options {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .datetime-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="templates-sidebar">
+            <div class="templates-title">📋 Quick Templates</div>
+            {% for template in templates %}
+            <div class="template-item" onclick="useTemplate('{{ template.name }}', '{{ template.title }}', '{{ template.description }}', {{ template.priority }})">
+                <div class="template-name">{{ template.name }}</div>
+                <div class="template-desc">{{ template.description }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-container">
+            <div class="form-header">
+                <h2>✨ Create New Task</h2>
+                <p>Plan your work and work your plan</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" id="taskForm">
+                <div class="form-grid">
+                    <div class="form-group form-group-full">
+                        <label for="title">📝 Task Title <span class="required">*</span></label>
+                        <input type="text" id="title" name="title" required maxlength="200" 
+                               placeholder="Enter a clear, descriptive title...">
+                        <div class="character-count" id="titleCount">0/200 characters</div>
+                    </div>
+
+                    <div class="form-group form-group-full">
+                        <label for="description">📄 Description</label>
+                        <textarea id="description" name="description" 
+                                  placeholder="Add details, notes, or context for this task..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deadline">📅 Deadline <span class="required">*</span></label>
+                        <input type="datetime-local" id="deadline" name="deadline" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">🏷️ Category</label>
+                        <input type="text" id="category" name="category" 
+                               placeholder="e.g., Work, Personal, Study..." 
+                               list="categoryOptions">
+                        <datalist id="categoryOptions">
+                            <option value="Work">
+                            <option value="Personal">
+                            <option value="Study">
+                            <option value="Health">
+                            <option value="Finance">
+                            <option value="Home">
+                        </datalist>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="estimated_hours">⏱️ Estimated Hours</label>
+                        <input type="number" id="estimated_hours" name="estimated_hours" 
+                               min="0.1" max="100" step="0.5" 
+                               placeholder="How long will this take?">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>⭐ Priority Level <span class="required">*</span></label>
+                    <div class="priority-options">
+                        <div class="priority-option">
+                            <input type="radio" id="priority1" name="priority" value="1">
+                            <label for="priority1">
+                                <span class="priority-icon">🟢</span>
+                                <span>Low</span>
+                            </label>
+                        </div>
+                        <div class="priority-option">
+                            <input type="radio" id="priority2" name="priority" value="2">
+                            <label for="priority2">
+                                <span class="priority-icon">🔵</span>
+                                <span>Below Normal</span>
+                            </label>
+                        </div>
+                        <div class="priority-option">
+                            <input type="radio" id="priority3" name="priority" value="3" checked>
+                            <label for="priority3">
+                                <span class="priority-icon">🟡</span>
+                                <span>Normal</span>
+                            </label>
+                        </div>
+                        <div class="priority-option">
+                            <input type="radio" id="priority4" name="priority" value="4">
+                            <label for="priority4">
+                                <span class="priority-icon">🟠</span>
+                                <span>Above Normal</span>
+                            </label>
+                        </div>
+                        <div class="priority-option">
+                            <input type="radio" id="priority5" name="priority" value="5">
+                            <label for="priority5">
+                                <span class="priority-icon">🔴</span>
+                                <span>High</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="submit-container">
+                    <button type="submit" class="btn btn-primary">🚀 Create Task</button>
+                    <a href="/tasks" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Character counter for title
+        document.getElementById('title').addEventListener('input', function() {
+            const count = this.value.length;
+            const counter = document.getElementById('titleCount');
+            counter.textContent = `${count}/200 characters`;
+            
+            if (count > 180) {
+                counter.style.color = '#dc3545';
+            } else if (count > 150) {
+                counter.style.color = '#fd7e14';
+            } else {
+                counter.style.color = '#666';
+            }
+        });
+
+        // Set minimum date to current date/time
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const offset = now.getTimezoneOffset();
+            const localTime = new Date(now.getTime() - (offset * 60 * 1000));
+            const formattedTime = localTime.toISOString().slice(0, 16);
+            document.getElementById('deadline').min = formattedTime;
+        });
+
+        // Template functionality
+        function useTemplate(name, title, description, priority) {
+            document.getElementById('title').value = title;
+            document.getElementById('description').value = description;
+            document.getElementById(`priority${priority}`).checked = true;
+            
+            // Trigger character count update
+            document.getElementById('title').dispatchEvent(new Event('input'));
+            
+            // Visual feedback
+            const templateItems = document.querySelectorAll('.template-item');
+            templateItems.forEach(item => {
+                item.style.background = 'rgba(255, 255, 255, 0.2)';
+            });
+            
+            event.target.style.background = 'rgba(255, 255, 255, 0.4)';
+            
+            // Scroll to form
+            document.getElementById('title').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('title').focus();
+        }
+
+        // Form validation
+        document.getElementById('taskForm').addEventListener('submit', function(e) {
+            const title = document.getElementById('title').value.trim();
+            const deadline = document.getElementById('deadline').value;
+            const priority = document.querySelector('input[name="priority"]:checked');
+            
+            if (!title) {
+                alert('Please enter a task title');
+                e.preventDefault();
+                return;
+            }
+            
+            if (!deadline) {
+                alert('Please select a deadline');
+                e.preventDefault();
+                return;
+            }
+            
+            if (!priority) {
+                alert('Please select a priority level');
+                e.preventDefault();
+                return;
+            }
+            
+            // Check if deadline is in the past
+            const deadlineDate = new Date(deadline);
+            const now = new Date();
+            
+            if (deadlineDate < now) {
+                alert('Deadline cannot be in the past');
+                e.preventDefault();
+                return;
+            }
+        });
+
+        // Auto-save to localStorage (optional)
+        function saveFormData() {
+            const formData = {
+                title: document.getElementById('title').value,
+                description: document.getElementById('description').value,
+                category: document.getElementById('category').value,
+                estimated_hours: document.getElementById('estimated_hours').value,
+                priority: document.querySelector('input[name="priority"]:checked')?.value
+            };
+            
+            // Note: localStorage is not available in Claude artifacts
+            // This would work in a real browser environment
+            // localStorage.setItem('taskFormData', JSON.stringify(formData));
+        }
+
+        // Save form data periodically
+        setInterval(saveFormData, 30000); // Save every 30 seconds
+
+        // Enhanced UX: Show estimated completion time
+        document.getElementById('estimated_hours').addEventListener('input', function() {
+            const hours = parseFloat(this.value);
+            if (hours && hours > 0) {
+                const deadline = document.getElementById('deadline').value;
+                if (deadline) {
+                    const deadlineDate = new Date(deadline);
+                    const startDate = new Date(deadlineDate.getTime() - (hours * 60 * 60 * 1000));
+                    
+                    if (startDate > new Date()) {
+                        this.title = `Suggested start time: ${startDate.toLocaleString()}`;
+                    } else {
+                        this.title = 'Consider adjusting deadline or estimated hours';
+                        this.style.borderColor = '#fd7e14';
+                    }
+                }
+            } else {
+                this.title = '';
+                this.style.borderColor = '#e1e5e9';
+            }
+        });
+    </script>
+</body>
+</html>

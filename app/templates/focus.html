@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Mode - Smart TaskFlow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .focus-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            padding: 0.5rem 1rem;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .nav-links a:hover {
+            background: #2563eb;
+        }
+
+        .focus-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #3b82f6;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .recommendation-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .recommendation-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .recommendation-card.active {
+            border-color: #3b82f6;
+            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .recommendation-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .recommendation-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .recommendation-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .recommendation-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .recommendation-body {
+            padding: 1.5rem;
+        }
+
+        .task-list {
+            space-y: 1rem;
+        }
+
+        .focus-task {
+            padding: 1rem;
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+
+        .focus-task:hover {
+            background: #f1f5f9;
+            transform: translateX(4px);
+        }
+
+        .focus-task-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .focus-task-meta {
+            font-size: 0.85rem;
+            color: #6b7280;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .task-score {
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background: #fee2e2;
+            color: #dc2626;
+            font-size: 0.8rem;
+        }
+
+        .task-priority {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .priority-high { background: #fecaca; color: #dc2626; }
+        .priority-medium { background: #fed7aa; color: #ea580c; }
+        .priority-low { background: #ddd6fe; color: #7c3aed; }
+
+        .start-session-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .start-session-btn:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .session-timer {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .session-timer.active {
+            display: block;
+        }
+
+        .timer-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #3b82f6;
+            margin-bottom: 1rem;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .timer-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .timer-btn.start {
+            background: #10b981;
+            color: white;
+        }
+
+        .timer-btn.pause {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .timer-btn.stop {
+            background: #ef4444;
+            color: white;
+        }
+
+        .timer-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .focus-insights {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .insight {
+            padding: 1rem;
+            margin: 0.75rem 0;
+            border-radius: 8px;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+        }
+
+        .insight.tip {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+
+        .insight.warning {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+
+        .insight.success {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .insight-icon {
+            margin-right: 1rem;
+            font-size: 1.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .recommendations-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .focus-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            body {
+                padding: 1rem;
+            }
+            
+            .timer-display {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="focus-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎯 Focus Mode</h1>
+            <p>Enter your productivity zone with AI-powered task recommendations</p>
+            <div class="nav-links">
+                <a href="/dashboard">📊 Dashboard</a>
+                <a href="/tasks">📋 All Tasks</a>
+                <a href="/tasks/create">➕ Add Task</a>
+                <a href="/progress">📈 Progress</a>
+                <a href="/">🏠 Home</a>
+            </div>
+        </div>
+
+        <!-- Focus Stats -->
+        <div class="focus-stats">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_estimated_time }}</div>
+                <div class="stat-label">Hours Estimated</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ recommendations.smart.tasks|length + recommendations.urgent.tasks|length + recommendations.priority.tasks|length }}</div>
+                <div class="stat-label">Available Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Focus Categories</div>
+            </div>
+        </div>
+
+        <!-- Session Timer (Initially Hidden) -->
+        <div class="session-timer" id="sessionTimer">
+            <h3>🕐 Focus Session Active</h3>
+            <div class="timer-display" id="timerDisplay">25:00</div>
+            <p>Stay focused! You're doing great.</p>
+            <div class="timer-controls">
+                <button class="timer-btn start" onclick="startTimer()">▶️ Start</button>
+                <button class="timer-btn pause" onclick="pauseTimer()">⏸️ Pause</button>
+                <button class="timer-btn stop" onclick="stopTimer()">⏹️ Stop</button>
+            </div>
+        </div>
+
+        <!-- Task Recommendations -->
+        <div class="recommendations-grid">
+            {% for key, rec in recommendations.items() %}
+            <div class="recommendation-card {% if key == current_selection %}active{% endif %}" onclick="selectRecommendation('{{ key }}')">
+                <div class="recommendation-header">
+                    <div class="recommendation-icon">{{ rec.icon }}</div>
+                    <div class="recommendation-title">{{ rec.title }}</div>
+                    <div class="recommendation-description">{{ rec.description }}</div>
+                </div>
+                <div class="recommendation-body">
+                    {% if rec.tasks %}
+                        <div class="task-list">
+                            {% for task in rec.tasks %}
+                            <div class="focus-task">
+                                <div class="focus-task-title">{{ task.title }}</div>
+                                <div class="focus-task-meta">
+                                    <span>
+                                        Due: {{ task.deadline.strftime('%m/%d') }}
+                                        {% if task.estimated_hours %}
+                                        • {{ task.estimated_hours }}h
+                                        {% endif %}
+                                    </span>
+                                    <div>
+                                        <span class="task-priority priority-{{ task.priority }}">
+                                            {% if task.priority >= 4 %}High{% elif task.priority >= 3 %}Medium{% else %}Low{% endif %}
+                                        </span>
+                                        <span class="task-score">{{ "%.1f"|format(task.smart_score) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="start-session-btn" onclick="startFocusSession('{{ key }}')">
+                            🚀 Start {{ rec.title }} Session
+                        </button>
+                    {% else %}
+                        <div class="empty-state">
+                            No tasks available for this category
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Focus Insights -->
+        <div class="focus-insights">
+            <h3>💡 Focus Tips & Insights</h3>
+            <div class="insight tip">
+                <span class="insight-icon">💡</span>
+                Use the Pomodoro Technique: 25 minutes of focused work followed by a 5-minute break.
+            </div>
+            <div class="insight success">
+                <span class="insight-icon">✅</span>
+                Your AI recommendations are based on deadline urgency, priority level, and completion time.
+            </div>
+            <div class="insight warning">
+                <span class="insight-icon">⚠️</span>
+                {% if recommendations.urgent.tasks %}
+                You have {{ recommendations.urgent.tasks|length }} urgent task(s) with approaching deadlines.
+                {% else %}
+                Great job! No urgent tasks with approaching deadlines.
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let timerInterval;
+        let timeLeft = 25 * 60; // 25 minutes in seconds
+        let isRunning = false;
+
+        function selectRecommendation(key) {
+            // Remove active class from all cards
+            document.querySelectorAll('.recommendation-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Add active class to selected card
+            event.currentTarget.classList.add('active');
+        }
+
+        function startFocusSession(type) {
+            document.getElementById('sessionTimer').classList.add('active');
+            document.getElementById('sessionTimer').scrollIntoView({ behavior: 'smooth' });
+            
+            // You can add logic here to track which session type was started
+            console.log('Starting focus session:', type);
+        }
+
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        isRunning = false;
+                        alert('🎉 Focus session complete! Take a well-deserved break.');
+                        resetTimer();
+                    }
+                }, 1000);
+            }
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            resetTimer();
+        }
+
+        function resetTimer() {
+            timeLeft = 25 * 60;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Initialize timer display
+        updateTimerDisplay();
+    </script>
+</body>
+</html>
