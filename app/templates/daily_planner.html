@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <div class="max-w-5xl mx-auto px-4 py-8">
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <h1 class="text-3xl font-bold text-gray-800">Daily Planner</h1>
+        <div class="flex flex-wrap gap-3 items-center">
+          <input type="date" id="filter-date" class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" />
+          <select id="filter-priority" class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+            <option value="">Priority</option>
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+          <input type="text" id="filter-search" placeholder="Search tasks..." class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" />
+          <button id="btn-add-task" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">+ Add Task</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div id="stats-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <!-- Example stat -->
+        <div class="bg-white p-4 rounded-lg shadow text-center">
+          <h2 class="text-xl font-semibold">10</h2>
+          <p class="text-sm text-gray-500">Total Tasks</p>
+        </div>
+      </div>
+
+      <!-- Task List -->
+      <div id="tasks-container" class="flex flex-col gap-4">
+        <!-- Example task -->
+        <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+          <div>
+            <h3 class="font-semibold text-gray-800">Task Title</h3>
+            <div class="text-sm text-gray-500">Today at 2:00 PM • <span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs">High</span></div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="text-green-600 hover:text-green-800 text-sm">✔️</button>
+            <button class="text-blue-600 hover:text-blue-800 text-sm">✏️</button>
+            <button class="text-red-600 hover:text-red-800 text-sm">🗑️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="task-modal" class="fixed inset-0 bg-black bg-opacity-40 hidden justify-center items-center z-50">
+      <div class="bg-white rounded-lg p-6 w-96 shadow-xl">
+        <h3 class="text-lg font-semibold mb-4" id="modal-title">New Task</h3>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium">Title *</label>
+            <input type="text" id="task-title" maxlength="255" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Date</label>
+            <input type="date" id="task-date" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Time</label>
+            <input type="time" id="task-time" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Priority</label>
+            <select id="task-priority" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+              <option>Medium</option>
+              <option>High</option>
+              <option>Low</option>
+            </select>
+          </div>
+          <div class="flex items-center">
+            <input type="checkbox" id="task-recurring" class="mr-2" />
+            <label for="task-recurring" class="text-sm">Recurring</label>
+          </div>
+          <div class="flex justify-end gap-3 pt-4">
+            <button id="btn-cancel" class="px-4 py-2 bg-gray-200 rounded-md text-sm">Cancel</button>
+            <button id="btn-save" class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Placeholder JS logic for modal
+      const modal = document.getElementById('task-modal');
+      const btnAdd = document.getElementById('btn-add-task');
+      const btnCancel = document.getElementById('btn-cancel');
+
+      btnAdd.addEventListener('click', () => modal.classList.remove('hidden'));
+      btnCancel.addEventListener('click', () => modal.classList.add('hidden'));
+    </script>
+  </body>
+</html>

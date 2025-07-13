@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Tasks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .export-options {
+            margin-bottom: 30px;
+        }
+
+        .format-selector {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .format-option {
+            position: relative;
+        }
+
+        .format-option input[type="radio"] {
+            display: none;
+        }
+
+        .format-option label {
+            display: block;
+            padding: 15px 30px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #495057;
+            min-width: 120px;
+        }
+
+        .format-option label:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .format-option input[type="radio"]:checked + label {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .format-description {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .format-description h3 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .format-description p {
+            color: #6c757d;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .download-section {
+            margin-top: 30px;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .download-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .download-btn:hover::before {
+            left: 100%;
+        }
+
+        .info-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(52, 152, 219, 0.2);
+        }
+
+        .info-section h3 {
+            color: #2980b9;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+
+        .info-list {
+            text-align: left;
+            color: #34495e;
+        }
+
+        .info-list li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .info-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(39, 174, 96, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(39, 174, 96, 0.2);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .format-selector {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .format-option label {
+                min-width: auto;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Export Tasks</h1>
+            <p>Download your tasks in your preferred format</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalTasks">-</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="completedTasks">-</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+
+        <div class="export-options">
+            <div class="format-selector">
+                <div class="format-option">
+                    <input type="radio" id="csv" name="format" value="csv" checked>
+                    <label for="csv">📄 CSV</label>
+                </div>
+                <div class="format-option">
+                    <input type="radio" id="json" name="format" value="json">
+                    <label for="json">💾 JSON</label>
+                </div>
+            </div>
+
+            <div class="format-description" id="formatDescription">
+                <h3>CSV Format</h3>
+                <p>Perfect for spreadsheet applications like Excel or Google Sheets. Easy to read and analyze your task data.</p>
+            </div>
+        </div>
+
+        <div class="download-section">
+            <a href="/export?format=csv" class="download-btn" id="downloadBtn">
+                Download CSV
+            </a>
+        </div>
+
+        <div class="info-section">
+            <h3>Your export will include:</h3>
+            <ul class="info-list">
+                <li>Task ID and title</li>
+                <li>Description and priority level</li>
+                <li>Category and deadline information</li>
+                <li>Completion status and timestamps</li>
+                <li>Estimated hours and creation dates</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Format descriptions
+        const formatDescriptions = {
+            csv: {
+                title: "CSV Format",
+                description: "Perfect for spreadsheet applications like Excel or Google Sheets. Easy to read and analyze your task data."
+            },
+            json: {
+                title: "JSON Format", 
+                description: "Ideal for developers and data analysis tools. Contains all task data in a structured, machine-readable format."
+            }
+        };
+
+        // Handle format selection
+        document.querySelectorAll('input[name="format"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const format = this.value;
+                const description = document.getElementById('formatDescription');
+                const downloadBtn = document.getElementById('downloadBtn');
+                
+                // Update description
+                description.innerHTML = `
+                    <h3>${formatDescriptions[format].title}</h3>
+                    <p>${formatDescriptions[format].description}</p>
+                `;
+                
+                // Update download button
+                downloadBtn.href = `/export?format=${format}`;
+                downloadBtn.textContent = `Download ${format.toUpperCase()}`;
+            });
+        });
+
+        // Simulate loading task statistics (you can replace this with actual data)
+        function loadTaskStats() {
+            // In a real implementation, you would fetch this data from your backend
+            // For demo purposes, we'll use placeholder data
+            setTimeout(() => {
+                document.getElementById('totalTasks').textContent = '42';
+                document.getElementById('completedTasks').textContent = '28';
+            }, 500);
+        }
+
+        // Add download tracking
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            // Optional: Add analytics or feedback
+            console.log('Export initiated:', this.href);
+        });
+
+        // Load stats when page loads
+        window.addEventListener('load', loadTaskStats);
+
+        // Add some visual feedback on button click
+        document.getElementById('downloadBtn').addEventListener('click', function(e) {
+            const btn = this;
+            const originalText = btn.textContent;
+            
+            btn.textContent = 'Preparing download...';
+            btn.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.opacity = '1';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help & Documentation - TaskFlow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-box {
+            position: relative;
+            max-width: 500px;
+            margin: 2rem auto;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 1.2rem;
+        }
+
+        .help-sections {
+            display: grid;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: fadeInUp 0.8s ease-out both;
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .section:nth-child(1) { animation-delay: 0.1s; }
+        .section:nth-child(2) { animation-delay: 0.2s; }
+        .section:nth-child(3) { animation-delay: 0.3s; }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-icon {
+            width: 2rem;
+            height: 2rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-item:hover {
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 10px;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .faq-question {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .faq-answer {
+            color: #4a5568;
+            padding-left: 1.5rem;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            opacity: 1;
+            max-height: 100px;
+            padding-top: 0.5rem;
+        }
+
+        .faq-toggle {
+            color: #667eea;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-toggle {
+            transform: rotate(45deg);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 2rem;
+            color: rgba(255,255,255,0.8);
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: #ffd700;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            font-size: 1.1rem;
+            display: none;
+        }
+
+        .no-results.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Help & Documentation</h1>
+            <p>Everything you need to know about maximizing your productivity with our task management system</p>
+        </div>
+
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="Search help topics..." id="searchInput">
+            <span class="search-icon">🔍</span>
+        </div>
+
+        <div class="help-sections" id="helpSections">
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="section-icon">🚀</span>
+                    Getting Started
+                </h2>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        <span class="faq-toggle">+</span>
+                        How do I create my first task?
+                    </div>
+                    <div class="faq-answer">
+                        Go to Tasks > Create Task or use the <span class="highlight">Quick Add</span> feature for natural language input.
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        <span class="faq-toggle">+</span>
+                        What is the Smart Priority System?
+                    </div>
+                    <div class="faq-answer">
+                        Our AI analyzes your tasks based on deadline urgency, priority level, and completion patterns to suggest the most important tasks.
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        <span class="faq-toggle">+</span>
+                        How does Quick Add work?
+                    </div>
+                    <div class="faq-answer">
+                        Simply type tasks in natural language like <span class="highlight">"Submit report by Friday 2pm"</span> and our system will parse the details automatically.
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="section-icon">🎯</span>
+                    Focus Mode & Timer
+                </h2>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        <span class="faq-toggle">+</span>
+                        What is Focus Mode?
+                    </div>
+                    <div class="faq-answer">
+                        Focus Mode shows your top 3 most important tasks based on AI analysis, helping you concentrate on what matters most.
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        <span class="faq-toggle">+</span>
+                        How do I use the Pomodoro Timer?
+                    </div>
+                    <div class="faq-answer">
+                        Select a task, choose your preferred time setting (<span class="highlight">25min work/5min break</span> is recommended), and start focusing!
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        <span class="faq-toggle">+</span>
+                        Can I customize timer settings?
+                    </div>
+                    <div class="faq-answer">
+                        Yes! We offer multiple presets: Pomodoro (25/5), Power Hour (60/15), Quick Sprint (15/3), and Deep Work (90/20).
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="section-icon">📊</span>
+                    Analytics & Progress
+                </h2>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        <span class="faq-toggle">+</span>
+                        How is my completion rate calculated?
+                    </div>
+                    <div class="faq-answer">
+                        Completion rate is the percentage of tasks you've completed within a selected time period.
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        <span class="faq-toggle">+</span>
+                        What insights can I get?
+                    </div>
+                    <div class="faq-answer">
+                        View your most productive days, completion trends, task distribution by priority, and performance streaks.
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        <span class="faq-toggle">+</span>
+                        Can I export my data?
+                    </div>
+                    <div class="faq-answer">
+                        Yes! Go to Settings to export your tasks in <span class="highlight">CSV or JSON format</span> for backup or analysis.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="no-results" id="noResults">
+            <h3>No results found</h3>
+            <p>Try adjusting your search terms or browse the sections above.</p>
+        </div>
+
+        <div class="footer">
+            <p>Still need help? <a href="/contact">Contact our support team</a> | <a href="/docs">View full documentation</a></p>
+        </div>
+    </div>
+
+    <script>
+        function toggleFAQ(element) {
+            const isActive = element.classList.contains('active');
+            
+            // Close all other FAQ items
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Toggle current item
+            if (!isActive) {
+                element.classList.add('active');
+            }
+        }
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const helpSections = document.getElementById('helpSections');
+        const noResults = document.getElementById('noResults');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const sections = document.querySelectorAll('.section');
+            let hasResults = false;
+
+            sections.forEach(section => {
+                const faqItems = section.querySelectorAll('.faq-item');
+                let sectionHasResults = false;
+
+                faqItems.forEach(item => {
+                    const question = item.querySelector('.faq-question').textContent.toLowerCase();
+                    const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+                    
+                    if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                        item.style.display = 'block';
+                        sectionHasResults = true;
+                        hasResults = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Show/hide section based on whether it has matching items
+                if (sectionHasResults || searchTerm === '') {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+
+            // Show/hide no results message
+            if (hasResults || searchTerm === '') {
+                noResults.classList.remove('show');
+                helpSections.style.display = 'grid';
+            } else {
+                noResults.classList.add('show');
+                helpSections.style.display = 'none';
+            }
+        });
+
+        // Add some interactive hover effects
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(5px)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(0)';
+            });
+        });
+    </script>
+</body>
+</html>

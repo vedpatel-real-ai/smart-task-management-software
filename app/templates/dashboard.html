@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Smart TaskFlow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            padding: 0.5rem 1rem;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .nav-links a:hover {
+            background: #2563eb;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card.total { border-left: 4px solid #3b82f6; }
+        .stat-card.completed { border-left: 4px solid #10b981; }
+        .stat-card.pending { border-left: 4px solid #f59e0b; }
+        .stat-card.overdue { border-left: 4px solid #ef4444; }
+        .stat-card.today { border-left: 4px solid #8b5cf6; }
+        .stat-card.week { border-left: 4px solid #06b6d4; }
+
+        .stat-card.total .stat-number { color: #3b82f6; }
+        .stat-card.completed .stat-number { color: #10b981; }
+        .stat-card.pending .stat-number { color: #f59e0b; }
+        .stat-card.overdue .stat-number { color: #ef4444; }
+        .stat-card.today .stat-number { color: #8b5cf6; }
+        .stat-card.week .stat-number { color: #06b6d4; }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+
+        .task-item {
+            padding: 1rem;
+            margin: 0.75rem 0;
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .task-item:hover {
+            background: #f1f5f9;
+            transform: translateX(4px);
+        }
+
+        .task-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .task-meta {
+            font-size: 0.85rem;
+            color: #6b7280;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-score {
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background: #fee2e2;
+            color: #dc2626;
+            font-size: 0.8rem;
+        }
+
+        .task-priority {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .priority-high { background: #fecaca; color: #dc2626; }
+        .priority-medium { background: #fed7aa; color: #ea580c; }
+        .priority-low { background: #ddd6fe; color: #7c3aed; }
+
+        .chart-container {
+            grid-column: 1 / -1;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .chart {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            height: 200px;
+            padding: 1rem 0;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .chart-bar {
+            background: linear-gradient(to top, #3b82f6, #1d4ed8);
+            border-radius: 4px 4px 0 0;
+            min-width: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .chart-bar:hover {
+            background: linear-gradient(to top, #2563eb, #1e40af);
+            transform: scale(1.05);
+        }
+
+        .chart-value {
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 0.25rem;
+        }
+
+        .chart-label {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .insights {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .insight {
+            padding: 1rem;
+            margin: 0.75rem 0;
+            border-radius: 8px;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+        }
+
+        .insight.warning {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+
+        .insight.info {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+
+        .insight.success {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .insight-icon {
+            margin-right: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            body {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Welcome back, {{ user.name.title() }}! 👋</h1>
+            <div class="nav-links">
+                <a href="/tasks">📋 View All Tasks</a>
+                <a href="/tasks/create">➕ Add Task</a>
+                <a href="/tasks/quick-add">🤖 AI Task Input</a>
+                <a href="/analytics">📊 Weekly Progress</a>
+                <a href="/focus">🎯 Focus Mode</a>
+                <a href="/daily-planner">📅 Daily Planner</a>
+                <a href="/help">➡ Help</a>
+                <a href="/logout">🔓 Logout</a>
+            </div>
+        </div>
+
+        <!-- Statistics Overview -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="stat-number">{{ stats.total_tasks }}</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-card completed">
+                <div class="stat-number">{{ stats.completed_today }}</div>
+                <div class="stat-label">Completed Today</div>
+            </div>
+            <div class="stat-card pending">
+                <div class="stat-number">{{ stats.pending_tasks }}</div>
+                <div class="stat-label">Pending Tasks</div>
+            </div>
+            <div class="stat-card overdue">
+                <div class="stat-number">{{ stats.overdue_tasks }}</div>
+                <div class="stat-label">Overdue Tasks</div>
+            </div>
+            <div class="stat-card today">
+                <div class="stat-number">{{ stats.due_today }}</div>
+                <div class="stat-label">Due Today</div>
+            </div>
+            <div class="stat-card week">
+                <div class="stat-number">{{ stats.due_this_week }}</div>
+                <div class="stat-label">Due This Week</div>
+            </div>
+        </div>
+
+        <!-- Weekly Progress Chart -->
+        <div class="chart-container">
+            <h3>📈 Weekly Completion Trend</h3>
+            <div class="chart">
+                {% for day in weekly_data %}
+                <div class="chart-bar" style="height: {{ (day.completed * 20 + 20) if day.completed > 0 else 20 }}px;">
+                    {% if day.completed > 0 %}
+                    <span class="chart-value">{{ day.completed }}</span>
+                    {% endif %}
+                    <span class="chart-label">{{ day.date }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Task Lists -->
+        <div class="content-grid">
+            <!-- Priority Tasks -->
+            <div class="card">
+                <h3>🔥 Top Priority Tasks</h3>
+                {% if priority_tasks %}
+                    {% for task in priority_tasks %}
+                    <div class="task-item">
+                        <div class="task-title">{{ task.title }}</div>
+                        <div class="task-meta">
+                            <span>
+                                Due: {{ task.deadline.strftime('%m/%d') }}
+                                <span class="task-priority priority-{{ task.priority }}">{{ task.priority }}</span>                            </span>
+                            <span class="task-score">Score: {{ "%.1f"|format(task.smart_score) }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">No pending tasks with priority scores</div>
+                {% endif %}
+            </div>
+
+            <!-- Recent Tasks -->
+            <div class="card">
+                <h3>🕐 Recently Added</h3>
+                {% if recent_tasks %}
+                    {% for task in recent_tasks %}
+                    <div class="task-item">
+                        <div class="task-title">{{ task.title }}</div>
+                        <div class="task-meta">
+                            <span>
+                                Due: {{ task.deadline.strftime('%m/%d') }}
+                                <span class="task-priority priority-{{ task.priority }}">{{ task.priority }}</span>                            </span>
+                            <span class="task-score">Score: {{ "%.1f"|format(task.smart_score) }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">No recent tasks to display</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Insights -->
+        {% if insights %}
+        <div class="insights">
+            <h3>💡 Productivity Insights</h3>
+            {% for insight in insights %}
+            <div class="insight {{ insight.type }}">
+                <span class="insight-icon">
+                    {% if insight.type == 'warning' %}⚠️
+                    {% elif insight.type == 'info' %}ℹ️
+                    {% elif insight.type == 'success' %}✅
+                    {% endif %}
+                </span>
+                {{ insight.message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

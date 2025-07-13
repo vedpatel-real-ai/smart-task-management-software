@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #f0f4ff;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .period-selector {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .period-selector select {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #f8f9ff, #e6f3ff);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #e0e7ff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .metric-label {
+            color: #64748b;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: #f8f9ff;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #e0e7ff;
+        }
+
+        .chart-title {
+            color: #667eea;
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .full-width-chart {
+            grid-column: 1 / -1;
+        }
+
+        .insights-section {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .insights-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .insight-card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .insight-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .insight-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .insight-description {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .weekday-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .weekday-item {
+            text-align: center;
+            padding: 15px 5px;
+            border-radius: 8px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .weekday-name {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .weekday-stats {
+            font-size: 0.9em;
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Analytics Dashboard</h1>
+        </div>
+
+        <div class="period-selector">
+            <select id="periodSelect" onchange="changePeriod()">
+                <option value="7" {{ 'selected' if current_period == 7 else '' }}>Last 7 Days</option>
+                <option value="30" {{ 'selected' if current_period == 30 else '' }}>Last 30 Days</option>
+                <option value="90" {{ 'selected' if current_period == 90 else '' }}>Last 90 Days</option>
+                <option value="365" {{ 'selected' if current_period == 365 else '' }}>Last Year</option>
+            </select>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value">{{ total_tasks|default(0) }}</div>
+                <div class="metric-label">Total Tasks</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ completed_tasks|default(0) }}</div>
+                <div class="metric-label">Completed Tasks</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ completion_rate|default(0) }}%</div>
+                <div class="metric-label">Completion Rate</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ avg_completion_time|default(0) }}h</div>
+                <div class="metric-label">Avg Completion Time</div>
+            </div>
+        </div>
+
+        {% if priority_dist is defined %}
+        <div class="charts-section">
+            <div class="chart-container">
+                <div class="chart-title">Task Priority Distribution</div>
+                <canvas id="priorityChart" width="400" height="300"></canvas>
+            </div>
+            
+            {% if weekday_completion is defined %}
+            <div class="chart-container">
+                <div class="chart-title">Completion Rate by Weekday</div>
+                <canvas id="weekdayChart" width="400" height="300"></canvas>
+            </div>
+            {% endif %}
+            
+            {% if monthly_data is defined %}
+            <div class="chart-container full-width-chart">
+                <div class="chart-title">Monthly Task Trends</div>
+                <canvas id="monthlyChart" width="800" height="400"></canvas>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if weekday_completion is defined %}
+        <div class="chart-container">
+            <div class="chart-title">Weekly Performance Overview</div>
+            <div class="weekday-grid">
+                {% set weekday_names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %}
+                {% for i in range(7) %}
+                <div class="weekday-item">
+                    <div class="weekday-name">{{ weekday_names[i] }}</div>
+                    <div class="weekday-stats">
+                        {{ weekday_completion[i].completed }}/{{ weekday_completion[i].total }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if insights is defined and insights %}
+        <div class="insights-section">
+            <div class="insights-title">🎯 Performance Insights</div>
+            <div class="insights-grid">
+                {% for insight in insights %}
+                <div class="insight-card">
+                    <div class="insight-title">{{ insight.title }}</div>
+                    <div class="insight-value">{{ insight.value }}</div>
+                    <div class="insight-description">{{ insight.description }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div style="text-align: center;">
+            <a href="/dashboard" class="back-button">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        // Priority Distribution Chart
+        {% if priority_dist is defined %}
+        const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+        const priorityChart = new Chart(priorityCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Low', 'Medium-Low', 'Medium', 'Medium-High', 'High'],
+                datasets: [{
+                    data: [
+                        {{ priority_dist[1]|default(0) }},
+                        {{ priority_dist[2]|default(0) }},
+                        {{ priority_dist[3]|default(0) }},
+                        {{ priority_dist[4]|default(0) }},
+                        {{ priority_dist[5]|default(0) }}
+                    ],
+                    backgroundColor: [
+                        '#10B981',
+                        '#3B82F6',
+                        '#F59E0B',
+                        '#EF4444',
+                        '#8B5CF6'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        {% endif %}
+
+        // Weekday Completion Chart
+        {% if weekday_completion is defined %}
+        const weekdayCtx = document.getElementById('weekdayChart').getContext('2d');
+        const weekdayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const weekdayData = [];
+        const weekdayCompletion = {{ weekday_completion|tojson }};
+        
+        for (let i = 0; i < 7; i++) {
+            const total = weekdayCompletion[i].total;
+            const completed = weekdayCompletion[i].completed;
+            weekdayData.push(total > 0 ? Math.round((completed / total) * 100) : 0);
+        }
+
+        const weekdayChart = new Chart(weekdayCtx, {
+            type: 'radar',
+            data: {
+                labels: weekdayLabels,
+                datasets: [{
+                    label: 'Completion Rate %',
+                    data: weekdayData,
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(102, 126, 234, 1)'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        {% endif %}
+
+        // Monthly Trends Chart
+        {% if monthly_data is defined %}
+        const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+        const monthlyData = {{ monthly_data|tojson }};
+        const monthlyLabels = Object.keys(monthlyData).sort();
+        const monthlyCreated = monthlyLabels.map(month => monthlyData[month].created);
+        const monthlyCompleted = monthlyLabels.map(month => monthlyData[month].completed);
+
+        const monthlyChart = new Chart(monthlyCtx, {
+            type: 'line',
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: 'Tasks Created',
+                    data: monthlyCreated,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Tasks Completed',
+                    data: monthlyCompleted,
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        {% endif %}
+
+        function changePeriod() {
+            const select = document.getElementById('periodSelect');
+            const days = select.value;
+            window.location.href = `/analytics?days=${days}`;
+        }
+    </script>
+</body>
+</html>
